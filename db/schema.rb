@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170321113515) do
+ActiveRecord::Schema.define(version: 20170321122949) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -32,6 +32,18 @@ ActiveRecord::Schema.define(version: 20170321113515) do
     t.index ["lender_id"], name: "index_loans_on_lender_id", using: :btree
   end
 
+  create_table "pay_backs", force: :cascade do |t|
+    t.integer  "borrower_id"
+    t.integer  "lender_id"
+    t.decimal  "amount"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.index ["borrower_id"], name: "index_pay_backs_on_borrower_id", using: :btree
+    t.index ["lender_id"], name: "index_pay_backs_on_lender_id", using: :btree
+  end
+
   add_foreign_key "loans", "accounts", column: "borrower_id"
   add_foreign_key "loans", "accounts", column: "lender_id"
+  add_foreign_key "pay_backs", "accounts", column: "borrower_id"
+  add_foreign_key "pay_backs", "accounts", column: "lender_id"
 end
