@@ -7,6 +7,7 @@ module PayBackAction
       lender.put_in(amount)
       borrower.take_out(amount)
       pay_back.save!
+      pay_back
     end
   end
 end
