@@ -18,7 +18,11 @@ RSpec.describe PayBack, type: :model do
       expect {
         PayBackAction.exec(lender: lender, borrower: borrower, amount: 50)
       }.to change { lender.deposit }.from(50).to(100)
+        .and change { lender.lends }.from(50).to(0)
+        .and change { lender.lends_to(borrower) }.from(50).to(0)
         .and change { borrower.deposit }.from(50).to(0)
+        .and change { borrower.borrows }.from(50).to(0)
+        .and change { borrower.borrows_from(lender) }.from(50).to(0)
     end
 
     it 'can not pay back without enough deposit' do

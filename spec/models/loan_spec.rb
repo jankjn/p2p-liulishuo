@@ -17,10 +17,15 @@ RSpec.describe Loan, type: :model do
     end
 
     it 'transfer money when confirmed' do
-      ConfirmLoanAction.exec(loan)
+      expect {
+        ConfirmLoanAction.exec(loan)
+      }.to change { lender.deposit }.from(100).to(50)
+        .and change { lender.lends }.from(0).to(50)
+        .and change { lender.lends_to(borrower) }.from(0).to(50)
+        .and change { borrower.deposit }.from(100).to(150)
+        .and change { borrower.borrows }.from(0).to(50)
+        .and change { borrower.borrows_from(lender) }.from(0).to(50)
       expect(loan).to be_confirmed
-      expect(lender.deposit).to eq(100 - 50)
-      expect(borrower.deposit).to eq(100 + 50)
     end
   end
 
@@ -33,9 +38,9 @@ RSpec.describe Loan, type: :model do
 
     it 'can not transfer money' do
       expect { ConfirmLoanAction.exec(loan) }.to raise_error(LoanOverflowError)
+        .and change { lender.deposit }.by(0)
+        .and change { borrower.deposit }.by(0)
       expect(loan).to_not be_confirmed
-      expect(lender.deposit).to eq(100)
-      expect(borrower.deposit).to eq(100)
     end
   end
 
