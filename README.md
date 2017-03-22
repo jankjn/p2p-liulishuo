@@ -1,3 +1,35 @@
+### 基本思路
+- 记录借款和还款记录
+- 用户实体记录认证信息和存款余额
+- 借款记录创建时默认未生效，须经借出者确认再生效
+- 借款记录创建时和确认时都会检查是否满足条件
+- 满足条件的还款立即生效
+- 修改两个用户存款的操作在同一事务中进行
+- 用户借出数额为用户作为借出者时借出记录与还款记录之差
+- 用户借得数额为用户作为借取者时借出记录与还款记录之差
+- 若要计算两个用户之间的债务记录就加上另一个用户作为借出者或者借取者的条件
+
+### demo 地址（仅api）
+https://p2p-liulishuo.herokuapp.com/
+
+```
+# bin/rake routes
+      Prefix Verb URI Pattern                  Controller#Action
+confirm_loan POST /loans/:id/confirm(.:format) loans#confirm
+       loans GET  /loans(.:format)             loans#index
+             POST /loans(.:format)             loans#create
+        loan GET  /loans/:id(.:format)         loans#show
+   pay_backs GET  /pay_backs(.:format)         pay_backs#index
+             POST /pay_backs(.:format)         pay_backs#create
+    pay_back GET  /pay_backs/:id(.:format)     pay_backs#show
+    accounts GET  /accounts(.:format)          accounts#index
+             POST /accounts(.:format)          accounts#create
+     account GET  /accounts/:id(.:format)      accounts#show
+     sign_up POST /sign_up(.:format)           accounts#create
+       login POST /login(.:format)             sessions#create
+```
+
+### api doc
 ```
 # 创建账户
 POST /sign_up
