@@ -1,6 +1,7 @@
 require 'actions/pay_back_action'
 
 class PayBacksController < ApplicationController
+  before_action :authenticate
 
   def index
     render json: PayBack.all
@@ -13,7 +14,7 @@ class PayBacksController < ApplicationController
   def create
     lender = Account.find(create_params[:lender_id])
     borrower = Account.find(create_params[:borrower_id])
-    if current_account_is_borrower
+    if @current_user == borrower
       pay_back = PayBackAction.exec(lender: lender, borrower: borrower, amount: create_params[:amount])
       render json: pay_back
     else
@@ -28,9 +29,5 @@ class PayBacksController < ApplicationController
   private
   def create_params
     params.permit(:lender_id, :borrower_id, :amount)
-  end
-
-  def current_account_is_borrower
-    true
   end
 end

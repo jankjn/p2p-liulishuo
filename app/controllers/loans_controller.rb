@@ -1,6 +1,7 @@
 require 'actions/confirm_loan_action'
 
 class LoansController < ApplicationController
+  before_action :authenticate
 
   def index
     render json: Loan.all
@@ -26,7 +27,7 @@ class LoansController < ApplicationController
   def confirm
     loan = Loan.find(params[:id])
 
-    if current_account_is_lender
+    if @current_user == loan.lender
       ConfirmLoanAction.exec(loan)
       render json: loan
     else
@@ -39,9 +40,5 @@ class LoansController < ApplicationController
   private
   def create_params
     params.permit(:lender_id, :borrower_id, :amount)
-  end
-
-  def current_account_is_lender
-    true #TODO
   end
 end
