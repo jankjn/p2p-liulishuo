@@ -4,7 +4,9 @@ class Account < ApplicationRecord
 
   validates :deposit, numericality: { greater_than_or_equal_to: 0 }
 
-  after_create_commit :set_auth_token
+  after_create_commit do
+    set_auth_token if auth_token.nil?
+  end
 
   def debt_status
     { borrows: borrows, lends: lends, deposit: deposit }
