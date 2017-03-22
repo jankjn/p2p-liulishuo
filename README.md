@@ -28,6 +28,99 @@ confirm_loan POST /loans/:id/confirm(.:format) loans#confirm
      sign_up POST /sign_up(.:format)           accounts#create
        login POST /login(.:format)             sessions#create
 ```
+默认已有账号:
+
+```javascript
+ { username: 'lender', password: 'lender', deposit: 100 }
+ { username: 'borrower', password: 'borrower', deposit: 0 }
+```
+调用示例(using [httpie](https://httpie.org/))
+
+```sh
+# 登录
+http p2p-liulishuo.herokuapp.com/login username=lender password=lender
+{
+    "id": 1,
+    "token": "cd9e8c61-d0a7-4d55-b1b4-523dc1608659"
+}
+
+# 查看账户列表
+http p2p-liulishuo.herokuapp.com/accounts 'Authorization: Token token=cd9e8c61-d0a7-4d55-b1b4-523dc1608659'
+[
+    {
+        "created_at": "2017-03-22T08:44:51.991Z",
+        "deposit": "0.0",
+        "id": 2,
+        "updated_at": "2017-03-22T08:44:51.998Z",
+        "username": "borrower"
+    },
+    {
+        "created_at": "2017-03-22T08:44:51.889Z",
+        "deposit": "100.0",
+        "id": 1,
+        "updated_at": "2017-03-22T11:05:11.864Z",
+        "username": "lender"
+    }
+]
+# 发起借款请求
+http POST p2p-liulishuo.herokuapp.com/loans lender_id:=1 borrower_id:=2 amount:=100 'Authorization: Token token=cd9e8c61-d0a7-4d55-b1b4-523dc1608659'
+{
+    "amount": "100.0",
+    "borrower_id": 2,
+    "confirmed": false,
+    "created_at": "2017-03-22T11:23:53.559Z",
+    "id": 1,
+    "lender_id": 1,
+    "updated_at": "2017-03-22T11:23:53.559Z"
+}
+# 同意借款请求
+http POST p2p-liulishuo.herokuapp.com/loans/1/confirm 'Authorization: Token token=cd9e8c61-d0a7-4d55-b1b4-523dc1608659'
+{
+    "amount": "100.0",
+    "borrower_id": 2,
+    "confirmed": true,
+    "created_at": "2017-03-22T11:23:53.559Z",
+    "id": 1,
+    "lender_id": 1,
+    "updated_at": "2017-03-22T11:25:04.456Z"
+}
+# 查看账户状态
+http p2p-liulishuo.herokuapp.com/accounts/1 'Authorization: Token token=cd9e8c61-d0a7-4d55-b1b4-523dc1608659'
+{
+    "borrows": "0.0",
+    "deposit": "0.0",
+    "lends": "100.0"
+}
+# 查看与2号用户之间的债务状态
+http 'p2p-liulishuo.herokuapp.com/accounts/1?with=2' 'Authorization: Token token=cd9e8c61-d0a7-4d55-b1b4-523dc1608659'
+{
+    "borrows": "0.0",
+    "lends": "100.0"
+}
+# 还钱(失败，当前用户必须为还款记录中的借款者)
+http POST p2p-liulishuo.herokuapp.com/pay_backs lender_id:=1 borrower_id:=2 amount:=100 'Authorization: Token token=cd9e8c61-d0a7-4d55-b1b4-523dc1608659'
+HTTP/1.1 403 Forbidden
+{
+    "error": "only borrower can confirm a loan"
+}
+# 还钱(登录使用借款者的 token)
+http POST p2p-liulishuo.herokuapp.com/pay_backs lender_id:=1 borrower_id:=2 amount:=100 'Authorization: Token token=7a7f055d-dd4e-4f36-acbc-61f93db78532'
+{
+    "amount": "100.0",
+    "borrower_id": 2,
+    "created_at": "2017-03-22T11:30:27.661Z",
+    "id": 1,
+    "lender_id": 1,
+    "updated_at": "2017-03-22T11:30:27.661Z"
+}
+# 还钱后的两者债务状况
+http 'p2p-liulishuo.herokuapp.com/accounts/1?with=2' 'Authorization: Token token=cd9e8c61-d0a7-4d55-b1b4-523dc1608659'
+{
+    "borrows": "0.0",
+    "lends": "0.0"
+}
+
+```
 
 ### api doc
 ```
