@@ -4,15 +4,6 @@ class Loan < ApplicationRecord
 
   validates :amount, numericality: { greater_than: 0 }
 
-  def confirm!
-    transaction do
-      raise LoanOverflowError if overflow?
-      lender.take_out(amount)
-      borrower.put_in(amount)
-      update!(confirmed: true)
-    end
-  end
-
   def overflow?
     lender.deposit < self.amount
   end

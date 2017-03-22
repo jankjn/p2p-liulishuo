@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'actions/confirm_loan_action'
 
 RSpec.describe Loan, type: :model do
   let(:lender) { Account.create(deposit: 100) }
@@ -16,7 +17,7 @@ RSpec.describe Loan, type: :model do
     end
 
     it 'transfer money when confirmed' do
-      loan.confirm!
+      ConfirmLoanAction.exec(loan)
       expect(loan).to be_confirmed
       expect(lender.deposit).to eq(100 - 50)
       expect(borrower.deposit).to eq(100 + 50)
@@ -31,7 +32,7 @@ RSpec.describe Loan, type: :model do
     end
 
     it 'can not transfer money' do
-      expect { loan.confirm! }.to raise_error(LoanOverflowError)
+      expect { ConfirmLoanAction.exec(loan) }.to raise_error(LoanOverflowError)
       expect(loan).to_not be_confirmed
       expect(lender.deposit).to eq(100)
       expect(borrower.deposit).to eq(100)
