@@ -2,8 +2,8 @@ require 'rails_helper'
 require 'actions/confirm_loan_action'
 
 RSpec.describe Loan, type: :model do
-  let(:lender) { Account.create(deposit: 100) }
-  let(:borrower) { Account.create(deposit: 100) }
+  let(:lender) { Account.create(username: 'lender', password: 'lender', deposit: 100) }
+  let(:borrower) { Account.create(username: 'borrower', password: 'borrower', deposit: 100) }
 
   context 'loan 50 from 100' do
     let(:loan) { Loan.create(lender: lender, borrower: borrower, amount: 50) }

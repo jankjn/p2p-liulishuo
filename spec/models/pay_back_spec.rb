@@ -4,10 +4,14 @@ require 'actions/pay_back_action'
 
 RSpec.describe PayBack, type: :model do
   before(:all) do
-    @lender = Account.create(deposit: 100)
-    @borrower = Account.create(deposit: 0)
+    @lender = Account.create(username: 'lender', password: 'lender', deposit: 100)
+    @borrower = Account.create(username: 'borrower', password: 'borrower', deposit: 0)
     @loan = Loan.create(lender: @lender, borrower: @borrower, amount: 50)
     ConfirmLoanAction.exec(@loan)
+  end
+  after(:all) do
+    Loan.all.each &:destroy
+    Account.all.each &:destroy
   end
   let(:lender) { @lender }
   let(:borrower) { @borrower }
