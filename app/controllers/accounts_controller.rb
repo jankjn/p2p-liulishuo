@@ -22,6 +22,7 @@ class AccountsController < ApplicationController
   end
 
   def create
+    return if miss_params(:username, :password, :deposit)
     account = Account.create(create_params)
     if account.valid?
       render json: account

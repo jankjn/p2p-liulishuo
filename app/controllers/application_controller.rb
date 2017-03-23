@@ -7,4 +7,9 @@ class ApplicationController < ActionController::API
       @current_user = Account.find_by(auth_token: token)
     end
   end
+
+  def miss_params(*keys)
+    missing_keys = keys.select { |k| params[k].nil? }
+    missing_keys.any? and render json: { error: "param #{missing_keys} is not provided" }, status: 400
+  end
 end
