@@ -1,5 +1,6 @@
 class SessionsController < ApplicationController
   def create
+    return if miss_params(:username, :password)
     account = Account.find_by(username: login_params[:username])
     if account&.authenticate(login_params[:password])
       account.set_auth_token
