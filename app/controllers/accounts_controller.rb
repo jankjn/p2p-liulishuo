@@ -6,15 +6,30 @@ class AccountsController < ApplicationController
   end
 
   def show
-    account = Account.find(params[:id])
-    other_account = Account.find_by(id: params[:with])
-    debt_status = other_account ? account.debt_status_with(other_account) : account.debt_status
-    render json: debt_status
+    account = Account.find_by(id: params[:id])
+    if account.nil?
+      render json: { error: 'account not found' }, status: 404
+    elsif params[:with].nil?
+      render json: account.debt_status
+    else
+      other_account = Account.find_by(id: params[:with])
+      if other_account
+        render json: account.debt_status_with(other_account)
+      else
+        render json: { error: 'second account is invalid' }, status: 404
+      end
+    end
   end
 
   def create
-    account = Account.create!(create_params)
-    render json: account
+    account = Account.create(create_params)
+    if account.valid?
+      render json: account
+    else
+      render json: account.errors, status: 400
+    end
+  rescue ActiveRecord::RecordNotUnique
+    render json: { error: 'username already used' }
   end
 
   private

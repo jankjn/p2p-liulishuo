@@ -3,6 +3,7 @@ class Account < ApplicationRecord
   has_secure_password
 
   validates :deposit, numericality: { greater_than_or_equal_to: 0 }
+  validates :username, presence: true
 
   after_create_commit do
     set_auth_token if auth_token.nil?
