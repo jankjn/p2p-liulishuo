@@ -18,9 +18,10 @@ RSpec.describe PayBack, type: :model do
   let(:loan) { @loan }
 
   context 'pay back 50 to 50' do
+    let(:pay_back) { PayBack.new(lender: lender, borrower: borrower, amount: 50) }
     it 'can pay back' do
       expect {
-        PayBackAction.exec(lender: lender, borrower: borrower, amount: 50)
+        PayBackAction.exec(pay_back)
       }.to change { lender.deposit }.from(50).to(100)
         .and change { lender.lends }.from(50).to(0)
         .and change { lender.lends_to(borrower) }.from(50).to(0)
@@ -31,7 +32,7 @@ RSpec.describe PayBack, type: :model do
 
     it 'can not pay back without enough deposit' do
       expect {
-        PayBackAction.exec(lender: lender, borrower: borrower, amount: 50)
+        PayBackAction.exec(pay_back)
       }.to raise_error(PayBackUnderflowError)
         .and change { lender.deposit }.by(0)
         .and change { borrower.deposit }.by(0)
@@ -39,9 +40,10 @@ RSpec.describe PayBack, type: :model do
   end
 
   context 'pay back 100 to 50' do
+    let(:pay_back) { PayBack.new(lender: lender, borrower: borrower, amount: 100) }
     it 'can not pay back' do
       expect {
-        PayBackAction.exec(lender: lender, borrower: borrower, amount: 100)
+        PayBackAction.exec(pay_back)
       }.to raise_error(PayBackOverflowError)
         .and change { lender.deposit }.by(0)
         .and change { borrower.deposit }.by(0)
