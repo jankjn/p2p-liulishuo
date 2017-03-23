@@ -1,13 +1,11 @@
 module PayBackAction
-  def self.exec(lender:, borrower:, amount:)
+  def self.exec(pay_back)
     PayBack.transaction do
-      pay_back = PayBack.new(lender: lender, borrower: borrower, amount: amount)
       raise PayBackOverflowError if pay_back.overflow?
       raise PayBackUnderflowError if pay_back.underflow?
-      lender.put_in(amount)
-      borrower.take_out(amount)
+      pay_back.lender.put_in(pay_back.amount)
+      pay_back.borrower.take_out(pay_back.amount)
       pay_back.save!
-      pay_back
     end
   end
 end

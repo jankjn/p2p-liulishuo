@@ -1,4 +1,4 @@
-require 'actions/confirm_loan_action'
+require_dependency 'actions/confirm_loan_action'
 
 class LoansController < ApplicationController
   before_action :authenticate
@@ -27,6 +27,8 @@ class LoansController < ApplicationController
       render json: { error: 'lender is not found' }, status: 404
     elsif borrower.nil?
       render json: { error: 'borrower is not found' }, status: 404
+    elsif loan.invalid?
+      render json: loan.errors, status: 400
     elsif loan.overflow?
       render json: { error: 'money not enough to lend' }, status: 400
     else

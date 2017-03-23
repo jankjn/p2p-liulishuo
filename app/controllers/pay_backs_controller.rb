@@ -1,4 +1,4 @@
-require 'actions/pay_back_action'
+require_dependency 'actions/pay_back_action'
 
 class PayBacksController < ApplicationController
   before_action :authenticate
@@ -8,14 +8,29 @@ class PayBacksController < ApplicationController
   end
 
   def show
-    render json: PayBack.find(params[:id])
+    pay_back = PayBack.find_by(id: params[:id])
+    if pay_back
+      render json: pay_back
+    else
+      render json: { error: 'pay back not found' }, status: 404
+    end
   end
 
   def create
+    return if miss_params(:lender_id, :borrower_id, :amount)
+
     lender = Account.find(create_params[:lender_id])
     borrower = Account.find(create_params[:borrower_id])
-    if @current_user == borrower
-      pay_back = PayBackAction.exec(lender: lender, borrower: borrower, amount: create_params[:amount])
+    pay_back = PayBack.new(lender: lender, borrower: borrower, amount: params[:amount])
+
+    if lender.nil?
+      render json: { error: 'lender is not found' }, status: 404
+    elsif borrower.nil?
+      render json: { error: 'borrower is not found' }, status: 404
+    elsif pay_back.invalid?
+      render json: pay_back.errors, status: 400
+    elsif @current_user == borrower
+      PayBackAction.exec(pay_back)
       render json: pay_back
     else
       render json: { error: 'only borrower can confirm a loan' }, status: 403
