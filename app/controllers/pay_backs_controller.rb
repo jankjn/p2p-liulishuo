@@ -35,10 +35,6 @@ class PayBacksController < ApplicationController
     else
       render json: { error: 'only borrower can confirm a loan' }, status: 403
     end
-  rescue PayBackOverflowError
-    render json: { error: 'can not pay back more than lends' }, status: 400
-  rescue PayBackUnderflowError
-    render json: { error: 'borrower can not afford the pay back' }, status: 400
   end
 
   private

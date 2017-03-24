@@ -23,14 +23,11 @@ class AccountsController < ApplicationController
 
   def create
     return if miss_params(:username, :password, :deposit)
-    account = Account.create(create_params)
-    if account.valid?
+    if Account.create(create_params)
       render json: account
     else
       render json: account.errors, status: 400
     end
-  rescue ActiveRecord::RecordNotUnique
-    render json: { error: 'username already used' }
   end
 
   private

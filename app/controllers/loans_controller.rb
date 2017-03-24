@@ -27,12 +27,10 @@ class LoansController < ApplicationController
       render json: { error: 'lender is not found' }, status: 404
     elsif borrower.nil?
       render json: { error: 'borrower is not found' }, status: 404
-    elsif loan.invalid?
-      render json: loan.errors, status: 400
-    elsif loan.overflow?
-      render json: { error: 'money not enough to lend' }, status: 400
+    elsif loan.save
+      render json: loan
     else
-      loan.save! and render json: loan
+      render json: loan.errors, status: 400
     end
   end
 
@@ -47,8 +45,6 @@ class LoansController < ApplicationController
     else
       render json: { error: 'only lender can confirm a loan' }, status: 403
     end
-  rescue LoanOverflowError
-    render json: { error: 'money not enough to lend' }, status: 400
   end
 
   private

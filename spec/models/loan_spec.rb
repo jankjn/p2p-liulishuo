@@ -37,8 +37,11 @@ RSpec.describe Loan, type: :model do
     end
 
     it 'can not transfer money' do
-      expect { ConfirmLoanAction.exec(loan) }.to raise_error(LoanOverflowError)
-        .and change { lender.deposit }.by(0)
+      expect(loan).to be_invalid
+      expect(loan.errors).to have_key(:amount)
+      expect(loan.errors.details[:amount]).to include({error: :overflow})
+      expect { ConfirmLoanAction.exec(loan) }
+        .to change { lender.deposit }.by(0)
         .and change { borrower.deposit }.by(0)
       expect(loan).to_not be_confirmed
     end
